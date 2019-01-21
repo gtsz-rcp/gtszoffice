@@ -1,4 +1,4 @@
-# admin
+# gtszoffice-admin
 
 > A Vue.js project
 
