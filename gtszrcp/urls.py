@@ -2,12 +2,14 @@ from django.conf import settings
 from django.conf.urls import include
 from django.conf.urls import url
 from django.conf.urls.static import static
-from rest_framework import routers
 from django.urls import path
 from django.contrib import admin
+from rest_framework import routers
 from .views import index
+
 import bibliography.views
 import pages.views
+import user.views
 
 admin.autodiscover()
 
@@ -16,6 +18,7 @@ router.register(r'book', bibliography.views.BookViewSet)
 router.register(r'dist', bibliography.views.DistViewSet)
 router.register(r'page', pages.views.PageViewSet)
 router.register(r'post', pages.views.PostViewSet)
+router.register(r'user', user.views.UserViewSet)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
