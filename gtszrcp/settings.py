@@ -38,13 +38,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
+    'corsheaders',
+    'rest_framework',
+    'rest_framework.authtoken',
     'bibliography',
     'pages',
     'photo',
     'storages',
-    'django_extensions',
-    'rest_framework',
-    'rest_framework.authtoken',
     'user'
 ]
 
@@ -72,7 +73,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             # os.path.join(BASE_DIR, 'templates'),
-            os.path.join(VUE_PROJECT_DIR, 'index.html') # vuejs build folder
+            os.path.join(BASE_DIR, 'front', 'dist') # vuejs build folder
         ],
         'APP_DIRS': True,
         'OPTIONS': {

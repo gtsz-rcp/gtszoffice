@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "/home/joeaney/.local/share/virtualenvs/gtszoffice-5mwDR76j/bin/python"
+    "python.pythonPath": "/home/joeaney/.local/share/virtualenvs/gtszoffice-5mwDR76j/bin/python",
+    "editor.wordWrap": "bounded"
 }

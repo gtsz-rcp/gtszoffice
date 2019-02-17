@@ -18,7 +18,7 @@ router.register(r'book', bibliography.views.BookViewSet)
 router.register(r'dist', bibliography.views.DistViewSet)
 router.register(r'page', pages.views.PageViewSet)
 router.register(r'post', pages.views.PostViewSet)
-router.register(r'user', user.views.UserViewSet)
+router.register(r'user', user.views.UserViewSet, basename='user')
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),

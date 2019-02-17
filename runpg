@@ -1,0 +1,1 @@
+sudo heroku pg:psql postgresql-spherical-67901 --app gtszrcp
