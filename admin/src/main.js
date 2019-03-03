@@ -6,11 +6,12 @@ import router from '@/router'
 import store from '@/vuex/store'
 import axios from 'axios'
 import VueCookie from 'vue-cookie'
-import 'bootstrap'
-import 'bootstrap/dist/css/bootstrap.min.css'
+import Buefy from 'buefy'
+import 'buefy/dist/buefy.css'
 
 Vue.config.productionTip = false
 Vue.use(VueCookie)
+Vue.use(Buefy)
 
 Vue.prototype.$http = axios.create({
   baseURL: (process.env.API_ROOT !== undefined ? process.env.API_ROOT : '')
