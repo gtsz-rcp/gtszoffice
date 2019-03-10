@@ -5,7 +5,7 @@ services:
     image: postgres:10.1-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-  web:
+  backend:
     build: .
     command: python /code/manage.py runserver 0.0.0.0:8000
     volumes:
@@ -14,6 +14,15 @@ services:
       - 8000:8000
     depends_on:
       - db
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    command: npm run dev
+    ports:
+      - 8080:8080
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
