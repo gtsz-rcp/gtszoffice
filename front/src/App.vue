@@ -18,6 +18,8 @@
   </div>
 </template>
 
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-78070436-5"></script>
+
 <script>
 export default {
   name: 'App',
@@ -75,6 +77,11 @@ export default {
     })
   }
 }
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'UA-78070436-5');
 </script>
 
 <style lang="scss">
