@@ -20,3 +20,4 @@ Vagrantfile
 .mariadata
 Pipfile.lock
 .vscode
+migrations
