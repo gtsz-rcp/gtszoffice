@@ -5,6 +5,7 @@ from flask_restful import abort
 from lib.db import db
 from lib.db import datetime_zero
 from .models import Pages as PagesModel
+from .models import PagesType
 from .models import init_from_dict
 
 
@@ -53,9 +54,34 @@ def pageParser(reqparse):
 class PagesWithoutId(Resource):
     def get(self):
         Pages = []
-        query = PagesModel.query.filter(
-            PagesModel != datetime_zero()
-            ).order_by(PagesModel.publishedtime).all()
+        query = PagesModel.query.\
+            filter(PagesModel.deletetime == datetime_zero()).\
+            filter(PagesModel.type == PagesType.page).\
+            order_by(PagesModel.publishedtime).\
+            all()
+        for page in query:
+            Pages.append(Pages_to_json(page))
+        return Pages
+
+    def put(self):
+        parser = pageParser(reqparse)
+        Page = PagesModel()
+        params = parser.parse_args()
+        Page = init_from_dict(Page, params)
+
+        db.session.add(Page)
+        db.session.commit()
+        return Pages_to_json(Page)
+
+
+class PostsWithoutId(Resource):
+    def get(self):
+        Pages = []
+        query = PagesModel.query.\
+            filter(PagesModel.deletetime == datetime_zero()).\
+            filter(PagesModel.type == PagesType.post).\
+            order_by(PagesModel.publishedtime).\
+            all()
         for page in query:
             Pages.append(Pages_to_json(page))
         return Pages
@@ -73,22 +99,38 @@ class PagesWithoutId(Resource):
 
 class PagesWithSlug(Resource):
     def get(self, slug):
-        Page = PagesModel.query.filter_by(slug=slug).first()
+        Page = PagesModel.query.\
+            filter(PagesModel.slug == slug).\
+            filter(PagesModel.deletetime == datetime_zero()).\
+            filter(PagesModel.type == PagesType.page).\
+            first()
         if Page is None:
             abort(404, message="Page(slug: {}) doesn't exist".format(slug))
+        return Pages_to_json(Page)
+
+
+class PostsWithSlug(Resource):
+    def get(self, slug):
+        Page = PagesModel.query.\
+            filter(PagesModel.slug == slug).\
+            filter(PagesModel.deletetime == datetime_zero()).\
+            filter(PagesModel.type == PagesType.post).\
+            first()
+        if Page is None:
+            abort(404, message="Post(slug: {}) doesn't exist".format(slug))
         return Pages_to_json(Page)
 
 
 class Pages(Resource):
     def get(self, page_id):
         Page = PagesModel.query.get(page_id)
-        if Page is None:
+        if Page is None or Page.type != PagesType.page:
             abort(404, message="Page(id: {}) doesn't exist".format(page_id))
         return Pages_to_json(Page)
 
     def delete(self, page_id):
         Page = PagesModel.query.get(page_id)
-        if Page is None:
+        if Page is None or Page.type != PagesType.page:
             abort(404, message="Page(id: {}) doesn't exist".format(page_id))
 
         Page.deletetime = datetime_zero()
@@ -97,8 +139,51 @@ class Pages(Resource):
 
     def put(self, page_id):
         Page = PagesModel.query.get(page_id)
-        if Page is None:
+        if Page is None or Page.type != PagesType.page:
             abort(404, message="Page(id: {}) doesn't exist".format(page_id))
+
+        parser = pageParser(reqparse).parse_args()
+        pass_nones = ('publishedtime', 'deletetime', 'updatetime', )
+        for key in parser:
+            print(key, key in pass_nones, parser[key] is None)
+            if key in ('createtime', 'id', ):
+                continue
+
+            if key in pass_nones and parser[key] is None:
+                continue
+
+            setattr(Page, key, parser[key])
+
+        if Page.deletetime is None:
+            Page.deletetime = datetime_zero()
+
+        if Page.publishedtime is None:
+            Page.publishedtime = Page.createtime
+
+        db.session.commit()
+        return Pages_to_json(PagesModel.query.get(page_id))
+
+
+class Posts(Resource):
+    def get(self, page_id):
+        Page = PagesModel.query.get(page_id)
+        if Page is None or Page.type != PagesType.post:
+            abort(404, message="Post(id: {}) doesn't exist".format(page_id))
+        return Pages_to_json(Page)
+
+    def delete(self, page_id):
+        Page = PagesModel.query.get(page_id)
+        if Page is None or Page.type != PagesType.post:
+            abort(404, message="Post(id: {}) doesn't exist".format(page_id))
+
+        Page.deletetime = datetime.utcnow
+        db.session.commit()
+        return {'message': 'Post(id: {}) deleted'.format(page_id)}
+
+    def put(self, page_id):
+        Page = PagesModel.query.get(page_id)
+        if Page is None or Page.type != PagesType.post or Page.datetime != datetime_zero():
+            abort(404, message="Post(id: {}) doesn't exist".format(page_id))
 
         parser = pageParser(reqparse).parse_args()
         pass_nones = ('publishedtime', 'deletetime', 'updatetime', )
