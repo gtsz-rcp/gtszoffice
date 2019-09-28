@@ -21,3 +21,4 @@ Vagrantfile
 Pipfile.lock
 .vscode
 migrations
+.pgdata
