@@ -9,199 +9,175 @@ from .models import PagesType
 from .models import init_from_dict
 
 
-def Pages_to_json(Pages: PagesModel):
-    data = {
-        'id': Pages.id,
-        'type': Pages.type.value,
-        'type_name': Pages.type.name,
-        'slug': Pages.slug,
-        'title': Pages.title,
-        'subtitle': Pages.subtitle,
-        'author': Pages.author,
-        'content': Pages.content,
-        'publishedtime': Pages.publishedtime,
-        'deletetime': Pages.deletetime,
-        'updatetime': Pages.updatetime,
-        'createtime': Pages.createtime,
-    }
+class PagesDataObject:
 
-    for t in ['publishedtime', 'deletetime', 'updatetime', 'createtime']:
-        if datetime.timestamp(data[t]) == 0:
-            data[t] = 0
-        else:
-            data[t] = data[t].isoformat()
+    def delete_by_id(self, pageType, page_id):
+        Page = PagesModel.query.get(page_id)
+        if Page is None or Page.type != getattr(PagesType, pageType):
+            abort(404, message="{type}}(id: {page_id}) doesn't exist".format(type=pageType, page_id=page_id))
 
-    return data
+        Page.deletetime = datetime_zero()
+        db.session.commit()
+        return {'message': '{type}}(id: {page_id}) deleted'.format(type=pageType, page_id=page_id)}
 
+    def get_by_id(self, pageType, page_id):
+        Page = PagesModel.query.get(page_id)
+        if Page is None or Page.type != PagesType.page:
+            abort(404, message="{type}(id: {page_id}) doesn't exist".format(type=pageType, page_id=page_id))
+        return self.to_json(Page)
 
-def pageParser(reqparse):
-    parser = reqparse.RequestParser()
-    parser.add_argument('id', type=int)
-    parser.add_argument('type', type=str)
-    parser.add_argument('slug', type=str)
-    parser.add_argument('title', type=str, required=True)
-    parser.add_argument('subtitle', type=str)
-    parser.add_argument('author', required=True, type=int)
-    parser.add_argument('content', type=str)
-    parser.add_argument('publishedtime')
-    parser.add_argument('deletetime')
-    parser.add_argument('updatetime')
-    parser.add_argument('createtime')
+    def get_by_slug(self, pageType, slug):
+        Page = PagesModel.query.\
+            filter(PagesModel.slug == slug).\
+            filter(PagesModel.deletetime == datetime_zero()).\
+            filter(PagesModel.type == getattr(PagesType, pageType)).\
+            first()
+        if Page is None:
+            abort(404, message="{type}}(slug: {slug}) doesn't exist".format(type=pageType, slug=slug))
+        return self.to_json(Page)
 
-    return parser
+    def lists(self, pagesType):
+        Pages = []
+        query = PagesModel.query.\
+            filter(PagesModel.deletetime == datetime_zero()).\
+            filter(PagesModel.type == getattr(PagesType, pagesType)).\
+            order_by(PagesModel.publishedtime).\
+            all()
+        for page in query:
+            Pages.append(self.to_json(page))
+        return Pages
+
+    def update(self, pagesType, page_id):
+        Page = PagesModel.query.get(page_id)
+        if Page is None or Page.type != getattr(PagesType, 'pagesType'):
+            abort(404, message="{type}}(id: {page_id}) doesn't exist".format(type=pagesType, page_id=page_id))
+
+        parser = self.params().parse_args()
+        pass_nones = ('publishedtime', 'deletetime', 'updatetime', )
+        for key in parser:
+            print(key, key in pass_nones, parser[key] is None)
+            if key in ('createtime', 'id', ):
+                continue
+
+            if key in pass_nones and parser[key] is None:
+                continue
+
+            setattr(Page, key, parser[key])
+
+        if Page.deletetime is None:
+            Page.deletetime = datetime_zero()
+
+        if Page.publishedtime is None:
+            Page.publishedtime = Page.createtime
+
+        db.session.commit()
+        return self.to_json(PagesModel.query.get(page_id))
+
+    def create(self, pagesType: str):
+        params = self.params().parse_args()
+        Page = PagesModel()
+        Page = init_from_dict(Page, params)
+
+        db.session.add(Page)
+        db.session.commit()
+        return self.to_json(Page)
+
+    def params(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('id', type=int)
+        parser.add_argument('type', type=str)
+        parser.add_argument('slug', type=str)
+        parser.add_argument('title', type=str, required=True)
+        parser.add_argument('subtitle', type=str)
+        parser.add_argument('author', required=True, type=int)
+        parser.add_argument('content', type=str)
+        parser.add_argument('publishedtime')
+        parser.add_argument('deletetime')
+        parser.add_argument('updatetime')
+        parser.add_argument('createtime')
+
+        return parser
+
+    def to_json(self, Pages: PagesModel):
+        data = {
+            'id': Pages.id,
+            'type': Pages.type.value,
+            'type_name': Pages.type.name,
+            'slug': Pages.slug,
+            'title': Pages.title,
+            'subtitle': Pages.subtitle,
+            'author': Pages.author,
+            'content': Pages.content,
+            'publishedtime': Pages.publishedtime,
+            'deletetime': Pages.deletetime,
+            'updatetime': Pages.updatetime,
+            'createtime': Pages.createtime,
+        }
+
+        for t in ['publishedtime', 'deletetime', 'updatetime', 'createtime']:
+            if datetime.timestamp(data[t]) == 0:
+                data[t] = 0
+            else:
+                data[t] = data[t].isoformat()
+
+        return data
 
 
 class PagesWithoutId(Resource):
     def get(self):
-        Pages = []
-        query = PagesModel.query.\
-            filter(PagesModel.deletetime == datetime_zero()).\
-            filter(PagesModel.type == PagesType.page).\
-            order_by(PagesModel.publishedtime).\
-            all()
-        for page in query:
-            Pages.append(Pages_to_json(page))
-        return Pages
+        pdo = PagesDataObject()
+        return pdo.lists('page')
 
-    def put(self):
-        parser = pageParser(reqparse)
-        Page = PagesModel()
-        params = parser.parse_args()
-        Page = init_from_dict(Page, params)
-
-        db.session.add(Page)
-        db.session.commit()
-        return Pages_to_json(Page)
+    def post(self):
+        pdo = PagesDataObject()
+        return pdo.create('page')
 
 
 class PostsWithoutId(Resource):
     def get(self):
-        Pages = []
-        query = PagesModel.query.\
-            filter(PagesModel.deletetime == datetime_zero()).\
-            filter(PagesModel.type == PagesType.post).\
-            order_by(PagesModel.publishedtime).\
-            all()
-        for page in query:
-            Pages.append(Pages_to_json(page))
-        return Pages
+        pdo = PagesDataObject()
+        return pdo.lists('post')
 
-    def put(self):
-        parser = pageParser(reqparse)
-        Page = PagesModel()
-        params = parser.parse_args()
-        Page = init_from_dict(Page, params)
-
-        db.session.add(Page)
-        db.session.commit()
-        return Pages_to_json(Page)
+    def post(self):
+        pdo = PagesDataObject()
+        return pdo.create('post')
 
 
 class PagesWithSlug(Resource):
     def get(self, slug):
-        Page = PagesModel.query.\
-            filter(PagesModel.slug == slug).\
-            filter(PagesModel.deletetime == datetime_zero()).\
-            filter(PagesModel.type == PagesType.page).\
-            first()
-        if Page is None:
-            abort(404, message="Page(slug: {}) doesn't exist".format(slug))
-        return Pages_to_json(Page)
+        pdo = PagesDataObject()
+        return pdo.get_by_slug('page', slug)
 
 
 class PostsWithSlug(Resource):
     def get(self, slug):
-        Page = PagesModel.query.\
-            filter(PagesModel.slug == slug).\
-            filter(PagesModel.deletetime == datetime_zero()).\
-            filter(PagesModel.type == PagesType.post).\
-            first()
-        if Page is None:
-            abort(404, message="Post(slug: {}) doesn't exist".format(slug))
-        return Pages_to_json(Page)
+        pdo = PagesDataObject()
+        return pdo.get_by_slug('post', slug)
 
 
 class Pages(Resource):
     def get(self, page_id):
-        Page = PagesModel.query.get(page_id)
-        if Page is None or Page.type != PagesType.page:
-            abort(404, message="Page(id: {}) doesn't exist".format(page_id))
-        return Pages_to_json(Page)
+        pdo = PagesDataObject()
+        return pdo.get_by_id('page', page_id)
 
     def delete(self, page_id):
-        Page = PagesModel.query.get(page_id)
-        if Page is None or Page.type != PagesType.page:
-            abort(404, message="Page(id: {}) doesn't exist".format(page_id))
-
-        Page.deletetime = datetime_zero()
-        db.session.commit()
-        return {'message': 'Page(id: {}) deleted'.format(page_id)}
+        pdo = PagesDataObject()
+        return pdo.delete_by_id('page', page_id)
 
     def put(self, page_id):
-        Page = PagesModel.query.get(page_id)
-        if Page is None or Page.type != PagesType.page:
-            abort(404, message="Page(id: {}) doesn't exist".format(page_id))
-
-        parser = pageParser(reqparse).parse_args()
-        pass_nones = ('publishedtime', 'deletetime', 'updatetime', )
-        for key in parser:
-            print(key, key in pass_nones, parser[key] is None)
-            if key in ('createtime', 'id', ):
-                continue
-
-            if key in pass_nones and parser[key] is None:
-                continue
-
-            setattr(Page, key, parser[key])
-
-        if Page.deletetime is None:
-            Page.deletetime = datetime_zero()
-
-        if Page.publishedtime is None:
-            Page.publishedtime = Page.createtime
-
-        db.session.commit()
-        return Pages_to_json(PagesModel.query.get(page_id))
+        pdo = PagesDataObject()
+        return pdo.update('page', page_id)
 
 
 class Posts(Resource):
     def get(self, page_id):
-        Page = PagesModel.query.get(page_id)
-        if Page is None or Page.type != PagesType.post:
-            abort(404, message="Post(id: {}) doesn't exist".format(page_id))
-        return Pages_to_json(Page)
+        pdo = PagesDataObject()
+        return pdo.get_by_id('post', page_id)
 
     def delete(self, page_id):
-        Page = PagesModel.query.get(page_id)
-        if Page is None or Page.type != PagesType.post:
-            abort(404, message="Post(id: {}) doesn't exist".format(page_id))
-
-        Page.deletetime = datetime.utcnow
-        db.session.commit()
-        return {'message': 'Post(id: {}) deleted'.format(page_id)}
+        pdo = PagesDataObject()
+        return pdo.delete_by_id('post', page_id)
 
     def put(self, page_id):
-        Page = PagesModel.query.get(page_id)
-        if Page is None or Page.type != PagesType.post or Page.datetime != datetime_zero():
-            abort(404, message="Post(id: {}) doesn't exist".format(page_id))
-
-        parser = pageParser(reqparse).parse_args()
-        pass_nones = ('publishedtime', 'deletetime', 'updatetime', )
-        for key in parser:
-            print(key, key in pass_nones, parser[key] is None)
-            if key in ('createtime', 'id', ):
-                continue
-
-            if key in pass_nones and parser[key] is None:
-                continue
-
-            setattr(Page, key, parser[key])
-
-        if Page.deletetime is None:
-            Page.deletetime = datetime_zero()
-
-        if Page.publishedtime is None:
-            Page.publishedtime = Page.createtime
-
-        db.session.commit()
-        return Pages_to_json(PagesModel.query.get(page_id))
+        pdo = PagesDataObject()
+        return pdo.update('post', page_id)
