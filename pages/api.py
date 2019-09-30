@@ -14,11 +14,11 @@ class PagesDataObject:
     def delete_by_id(self, pageType, page_id):
         Page = PagesModel.query.get(page_id)
         if Page is None or Page.type != getattr(PagesType, pageType):
-            abort(404, message="{type}}(id: {page_id}) doesn't exist".format(type=pageType, page_id=page_id))
+            abort(404, message="{type}(id: {page_id}) doesn't exist".format(type=pageType, page_id=page_id))
 
         Page.deletetime = datetime_zero()
         db.session.commit()
-        return {'message': '{type}}(id: {page_id}) deleted'.format(type=pageType, page_id=page_id)}
+        return {'message': '{type}(id: {page_id}) deleted'.format(type=pageType, page_id=page_id)}
 
     def get_by_id(self, pageType, page_id):
         Page = PagesModel.query.get(page_id)
@@ -33,7 +33,7 @@ class PagesDataObject:
             filter(PagesModel.type == getattr(PagesType, pageType)).\
             first()
         if Page is None:
-            abort(404, message="{type}}(slug: {slug}) doesn't exist".format(type=pageType, slug=slug))
+            abort(404, message="{type}(slug: {slug}) doesn't exist".format(type=pageType, slug=slug))
         return self.to_json(Page)
 
     def lists(self, pagesType):
@@ -49,8 +49,8 @@ class PagesDataObject:
 
     def update(self, pagesType, page_id):
         Page = PagesModel.query.get(page_id)
-        if Page is None or Page.type != getattr(PagesType, 'pagesType'):
-            abort(404, message="{type}}(id: {page_id}) doesn't exist".format(type=pagesType, page_id=page_id))
+        if Page is None or Page.type != getattr(PagesType, pagesType):
+            abort(404, message="{type}(id: {page_id}) doesn't exist".format(type=pagesType, page_id=page_id))
 
         parser = self.params().parse_args()
         pass_nones = ('publishedtime', 'deletetime', 'updatetime', )
@@ -75,6 +75,7 @@ class PagesDataObject:
 
     def create(self, pagesType: str):
         params = self.params().parse_args()
+        del params['id']
         Page = PagesModel()
         Page = init_from_dict(Page, params)
 
@@ -92,9 +93,9 @@ class PagesDataObject:
         parser.add_argument('author', required=True, type=int)
         parser.add_argument('content', type=str)
         parser.add_argument('publishedtime')
-        parser.add_argument('deletetime')
-        parser.add_argument('updatetime')
-        parser.add_argument('createtime')
+        parser.add_argument('deletetime', default=datetime_zero())
+        parser.add_argument('updatetime', default=datetime_zero())
+        parser.add_argument('createtime', default=datetime.utcnow())
 
         return parser
 

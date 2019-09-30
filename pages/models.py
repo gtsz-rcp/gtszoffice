@@ -18,10 +18,10 @@ class Pages(db.Model):
     subtitle = db.Column(db.String(255), nullable=True, default=None)
     author = db.Column(db.Integer(), default=1)
     content = db.Column(db.UnicodeText)
-    publishedtime = db.Column(db.DateTime, default=datetime.utcnow)
+    publishedtime = db.Column(db.DateTime, default=datetime.now())
     deletetime = db.Column(db.DateTime, nullable=True, default=None)
-    updatetime = db.Column(db.DateTime, nullable=True, default=None, onupdate=datetime.utcnow)
-    createtime = db.Column(db.DateTime, default=datetime.utcnow)
+    updatetime = db.Column(db.DateTime, nullable=True, default=None, onupdate=datetime.utcnow())
+    createtime = db.Column(db.DateTime, default=datetime.now())
 
 
 def init_from_dict(Pages: Pages, params: dict):
