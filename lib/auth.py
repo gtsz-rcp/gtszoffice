@@ -9,6 +9,13 @@ def login_proc(**kwargs):
     session['user_name'] = kwargs['name']
 
 
+def get_login(key):
+    key = 'user_'+key
+    if key in session:
+        return session[key]
+    return False
+
+
 def logout_proc(**kwargs):
     user_keys = ('user_id', 'user_type', 'user_email', 'user_name')
     for key in user_keys:
