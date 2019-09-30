@@ -44,6 +44,11 @@ class UserDataObject:
             'createtime': User.createtime
         }
 
+        if Auth.is_login() is False:
+            del data['password']
+        elif Auth.is_admin() is False and data['email'] != Auth.get_login('email'):
+            del data['password']
+
         return data
 
     def create(self):
@@ -57,6 +62,23 @@ class UserDataObject:
         db.session.add(User)
         db.session.commit()
         return self.to_json(User)
+
+    def get(self, user_id):
+        User = UsersModel.query.get(user_id)
+        if User is None:
+            message = self.messages['user_id_not_exists'].\
+                format(user_id=user_id)
+            abort(404, message=message)
+        return self.to_json(User)
+
+    def lists(self):
+        Auth.abort_if_not_login()
+        Users = []
+        query = UsersModel.query.all()
+        if query is not None:
+            for user in query:
+                Users.append(self.to_json(user))
+        return Users
 
     def udpate(self, user_id):
         User = UsersModel.query.get(user_id)
@@ -74,15 +96,28 @@ class UserDataObject:
         return self.to_json(UsersModel.query.get(user_id))
 
     def delete(self, user_id):
+        Auth.abort_if_not_login()
+
         User = UsersModel.query.get(user_id)
         if User is None:
             message = self.messages['user_id_not_exists'].\
                 format(user_id=user_id)
             abort(404, message=message)
+
+        if User.email != Auth.get_login('email') and Auth.is_admin() is False:
+            abort(403, 'not allowed')
         db.session.delete(User)
         db.session.commit()
 
         return {'message': 'User({email}) deleted'.format(email=User.email)}
+
+    def is_login(self):
+        Auth.abort_if_not_login()
+        return {'message': 1}
+
+    def is_admin(self):
+        Auth.abort_if_not_admin()
+        return {'message': 1}
 
     def login(self):
         params = self.login_params().parse_args()
@@ -110,3 +145,35 @@ class UserDataObject:
             abort(401, message="Login first")
 
         return Auth.logout_proc()
+
+
+class Users(Resource):
+    def get(self):
+        udo = UserDataObject()
+        return udo.lists()
+
+    def post(self):
+        udo = UserDataObject()
+        return udo.create()
+
+
+class UsersWithId(Resource):
+    def get(self, user_id):
+        udo = UserDataObject()
+        return udo.get(user_id)
+
+
+class UserLogin(Resource):
+    def post(self):
+        udo = UserDataObject()
+        return udo.login()
+
+    def get(self):
+        udo = UserDataObject()
+        return udo.is_login()
+
+
+class UserLogout(Resource):
+    def get(self):
+        udo = UserDataObject()
+        return udo.logout()

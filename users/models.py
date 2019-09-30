@@ -5,7 +5,7 @@ from lib.db import db
 
 class UsersType(enum.Enum):
     user = 1
-    admin = 2
+    admin = 100
 
 
 class Users(db.Model):
