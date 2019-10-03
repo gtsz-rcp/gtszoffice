@@ -6,21 +6,14 @@ from lib.db import db
 
 import pages.models
 import pages.api as PagesApi
-
-api.add_resource(PagesApi.PagesWithoutId, '/pages/')
-api.add_resource(PagesApi.Pages, '/pages/<int:page_id>')
-api.add_resource(PagesApi.PagesWithSlug, '/pages/<string:slug>')
-api.add_resource(PagesApi.PostsWithoutId, '/posts/')
-api.add_resource(PagesApi.Posts, '/posts/<int:page_id>')
-api.add_resource(PagesApi.PostsWithSlug, '/posts/<string:slug>')
-
 import users.models
 import users.api as UsersApi
-
-api.add_resource(UsersApi.Users, '/users/')
-api.add_resource(UsersApi.UsersWithId, '/users/<int:user_id>')
-api.add_resource(UsersApi.UserLogin, '/auth/login')
-api.add_resource(UsersApi.UserLogout, '/auth/logout')
+import artists.models
+import artists.api as ArtistsApi
+import bibliography.models_bookpartners
+import bibliography.models_books
+import bibliography.api_bookpartners
+import bibliography.api_books
 
 migrate = Migrate(app, db)
 

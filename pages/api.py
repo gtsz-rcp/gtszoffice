@@ -4,6 +4,7 @@ from flask_restful import reqparse
 from flask_restful import abort
 from lib.db import db
 from lib.db import datetime_zero
+from lib.app import api
 from .models import Pages as PagesModel
 from .models import PagesType
 from .models import init_from_dict
@@ -124,6 +125,7 @@ class PagesDataObject:
         return data
 
 
+@api.resource('/pages/')
 class PagesWithoutId(Resource):
     def get(self):
         pdo = PagesDataObject()
@@ -134,6 +136,7 @@ class PagesWithoutId(Resource):
         return pdo.create('page')
 
 
+@api.resource('/posts/')
 class PostsWithoutId(Resource):
     def get(self):
         pdo = PagesDataObject()
@@ -144,18 +147,21 @@ class PostsWithoutId(Resource):
         return pdo.create('post')
 
 
+@api.resource('/pages/<string:slug>')
 class PagesWithSlug(Resource):
     def get(self, slug):
         pdo = PagesDataObject()
         return pdo.get_by_slug('page', slug)
 
 
+@api.resource('/posts/<string:slug>')
 class PostsWithSlug(Resource):
     def get(self, slug):
         pdo = PagesDataObject()
         return pdo.get_by_slug('post', slug)
 
 
+@api.resource('/pages/<int:page_id>')
 class Pages(Resource):
     def get(self, page_id):
         pdo = PagesDataObject()
@@ -170,6 +176,7 @@ class Pages(Resource):
         return pdo.update('page', page_id)
 
 
+@api.resource('/posts/<int:page_id>')
 class Posts(Resource):
     def get(self, page_id):
         pdo = PagesDataObject()

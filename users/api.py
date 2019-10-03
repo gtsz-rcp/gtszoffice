@@ -3,6 +3,7 @@ from flask_restful import reqparse
 from flask_restful import abort
 from argon2 import PasswordHasher
 from lib.db import db
+from lib.app import api
 import lib.auth as Auth
 from .models import Users as UsersModel
 from .models import UsersType
@@ -147,6 +148,7 @@ class UserDataObject:
         return Auth.logout_proc()
 
 
+@api.resource('/users/')
 class Users(Resource):
     def get(self):
         udo = UserDataObject()
@@ -157,12 +159,14 @@ class Users(Resource):
         return udo.create()
 
 
+@api.resource('/users/<int:user_id>')
 class UsersWithId(Resource):
     def get(self, user_id):
         udo = UserDataObject()
         return udo.get(user_id)
 
 
+@api.resource('/auth/login')
 class UserLogin(Resource):
     def post(self):
         udo = UserDataObject()
@@ -173,6 +177,7 @@ class UserLogin(Resource):
         return udo.is_login()
 
 
+@api.resource('/auth/logout')
 class UserLogout(Resource):
     def get(self):
         udo = UserDataObject()
