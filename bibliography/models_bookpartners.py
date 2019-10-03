@@ -11,21 +11,8 @@ class BookPartnerType(enum.Enum):
     artist = 4
 
     def label(self):
-        label_dict = {
-            'writer': 'Writer',
-            'editor': 'Editor',
-            'designer': 'Designer',
-            'artist': 'Artist'
-        }
+        return self.name
 
-        return label_dict[self.name]
-
-
-class BookPartnerTypeLabel(enum.Enum):
-    writer = (1, 'Writer')
-    editor = (2, 'editor')
-    designer = (3, 'designer')
-    artist = (4, 'artist')
 
 class BookPartners(db.Model):
     __table_name__ = 'book_writers'
