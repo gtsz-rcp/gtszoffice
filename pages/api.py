@@ -15,16 +15,16 @@ class PagesDataObject:
     def delete_by_id(self, pageType, page_id):
         Page = PagesModel.query.get(page_id)
         if Page is None or Page.type != getattr(PagesType, pageType):
-            abort(404, message="{type}(id: {page_id}) doesn't exist".format(type=pageType, page_id=page_id))
+            abort(404, message=f"{pageType}(id: {page_id}) doesn't exist")
 
         Page.deletetime = datetime_zero()
         db.session.commit()
-        return {'message': '{type}(id: {page_id}) deleted'.format(type=pageType, page_id=page_id)}
+        return {'message': f'{pageType}(id: {page_id}) deleted'}
 
     def get_by_id(self, pageType, page_id):
         Page = PagesModel.query.get(page_id)
         if Page is None or Page.type != PagesType.page:
-            abort(404, message="{type}(id: {page_id}) doesn't exist".format(type=pageType, page_id=page_id))
+            abort(404, message=f"{pageType}(id: {page_id}) doesn't exist")
         return self.to_json(Page)
 
     def get_by_slug(self, pageType, slug):
@@ -34,7 +34,7 @@ class PagesDataObject:
             filter(PagesModel.type == getattr(PagesType, pageType)).\
             first()
         if Page is None:
-            abort(404, message="{type}(slug: {slug}) doesn't exist".format(type=pageType, slug=slug))
+            abort(404, message=f"{pageType}(slug: {slug}) doesn't exist"
         return self.to_json(Page)
 
     def lists(self, pagesType):
@@ -51,7 +51,7 @@ class PagesDataObject:
     def update(self, pagesType, page_id):
         Page = PagesModel.query.get(page_id)
         if Page is None or Page.type != getattr(PagesType, pagesType):
-            abort(404, message="{type}(id: {page_id}) doesn't exist".format(type=pagesType, page_id=page_id))
+            abort(404, message=f"{pagesType}(id: {page_id}) doesn't exist")
 
         parser = self.params().parse_args()
         pass_nones = ('publishedtime', 'deletetime', 'updatetime', )

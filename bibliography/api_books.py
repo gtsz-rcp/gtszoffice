@@ -1,11 +1,11 @@
-from falsk_restful import Resource
+from flask_restful import Resource
 from flask_restful import reqparse
 from flask_restful import abort
 from lib.db import db
 from lib.app import api
 import lib.auth as Auth
-from models_books import Books as BooksModel
-from models_books import Colorspace
+from .models_books import Books as BooksModel
+from .models_books import Colorspace
 
 
 class BookDataObject:
@@ -44,7 +44,7 @@ class BookDataObject:
             'colorspace': Book.colorspace.value,
         }
 
-        data['colorspace_labe'] = Book.colorspace.label
+        data['colorspace_label'] = Book.colorspace.label()
         return data
 
     def __get_book_or_abort(self, book_id):
@@ -145,7 +145,7 @@ class Books(Resource):
         return bdo.create()
 
 
-@api.resource('/bibliography/books/<str:slug>')
+@api.resource('/bibliography/books/<string:slug>')
 class BooksWithSlug(Resource):
     def get(self, slug):
         bdo = BookDataObject()

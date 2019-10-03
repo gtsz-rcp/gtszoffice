@@ -5,18 +5,20 @@ from lib.db import datetime_zero
 
 
 class Colorspace(enum.Enum):
-    CMYK = (1, 'CMYK')
-    RGB = (2, 'RGB')
-    GRAY = (3, 'Grayscale')
-    BNW = (4, 'Black And White')
+    CMYK = 1
+    RGB = 2
+    GRAY = 3
+    BNW = 4
 
-    def __init__(self, value, label):
-        self.value = value
-        self.label = label
-
-    @property
     def label(self):
-        return self.label
+        label_dict = {
+            'GRAY': 'Grayscale',
+            'BNW': 'Black And White'
+        }
+
+        if self.name in label_dict:
+            return label_dict[self.name]
+        return self.name
 
 
 class Books(db.Model):

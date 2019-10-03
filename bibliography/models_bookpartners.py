@@ -5,11 +5,27 @@ from lib.db import datetime_zero
 
 
 class BookPartnerType(enum.Enum):
+    writer = 1
+    editor = 2
+    designer = 3
+    artist = 4
+
+    def label(self):
+        label_dict = {
+            'writer': 'Writer',
+            'editor': 'Editor',
+            'designer': 'Designer',
+            'artist': 'Artist'
+        }
+
+        return label_dict[self.name]
+
+
+class BookPartnerTypeLabel(enum.Enum):
     writer = (1, 'Writer')
     editor = (2, 'editor')
     designer = (3, 'designer')
     artist = (4, 'artist')
-
 
 class BookPartners(db.Model):
     __table_name__ = 'book_writers'

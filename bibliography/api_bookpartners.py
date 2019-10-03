@@ -1,13 +1,13 @@
-from falsk_restful import Resource
+from flask_restful import Resource
 from flask_restful import reqparse
 from flask_restful import abort
 from lib.db import db
 from lib.app import api
 import lib.auth as Auth
-from artsts.models import Artists as ArtistsModel
-from models_books import Books as BooksModel
-from models_bookpartners import BookPartners as BookPartnersModel
-from models_bookpartners import BookPartnerType
+from artists.models import Artists as ArtistsModel
+from .models_books import Books as BooksModel
+from .models_bookpartners import BookPartners as BookPartnersModel
+from .models_bookpartners import BookPartnerType
 
 
 class BookPartnerDataObject:
