@@ -1,4 +1,5 @@
 [[source]]
+<<<<<<< HEAD
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
@@ -15,6 +16,41 @@ boto = "*"
 django-storages = "*"
 djangorestframework = "*"
 datetime = "*"
+=======
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pylint = "*"
+flake8 = "*"
+
+[packages]
+aniso8601 = "==8.0.0"
+astroid = "==2.2.5"
+click = "==7.0"
+colorama = "==0.4.1"
+isort = "==4.3.21"
+itsdangerous = "==1.1.0"
+lazy-object-proxy = "==1.4.2"
+mccabe = "==0.6.1"
+pylint = "==2.3.1"
+pytz = "==2019.2"
+six = "==1.12.0"
+typed-ast = "==1.4.0"
+wrapt = "==1.11.2"
+Flask = "==1.1.1"
+Flask-RESTful = "==0.3.7"
+Jinja2 = "==2.10.1"
+MarkupSafe = "==1.1.1"
+Werkzeug = "==0.15.6"
+flask-sqlalchemy = "*"
+flask-script = "*"
+flask-migrate = "*"
+psycopg2-binary = "*"
+marshmallow = "*"
+argon2-cffi = "*"
+>>>>>>> dev
 
 [requires]
 python_version = "3.7"

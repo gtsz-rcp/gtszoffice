@@ -1,10 +1,30 @@
-#!/usr/bin/env python
-import os
-import sys
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
+from lib.app import app
+from lib.app import api
+from lib.db import db
 
-if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gtszrcp.settings")
+import pages.models
+import pages.api as PagesApi
+import users.models
+import users.api as UsersApi
+import artists.models
+import artists.api as ArtistsApi
+import bibliography.models_bookpartners
+import bibliography.models_books
+import bibliography.api_bookpartners
+import bibliography.api_books
 
-    from django.core.management import execute_from_command_line
+migrate = Migrate(app, db)
 
-    execute_from_command_line(sys.argv)
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+
+
+@manager.command
+def run_server():
+    app.run()
+
+
+if __name__ == '__main__':
+    manager.run()
