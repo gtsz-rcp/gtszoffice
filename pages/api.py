@@ -34,7 +34,7 @@ class PagesDataObject:
             filter(PagesModel.type == getattr(PagesType, pageType)).\
             first()
         if Page is None:
-            abort(404, message=f"{pageType}(slug: {slug}) doesn't exist"
+            abort(404, message=f"{pageType}(slug: {slug}) doesn't exist")
         return self.to_json(Page)
 
     def lists(self, pagesType):
