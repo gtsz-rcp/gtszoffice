@@ -1,0 +1,14 @@
+# .service file is locate on /etc/systemd/system/
+# after modify and locate run 'systemctl daemon-reload'
+# and run 'systemctl enable gtszapp' to enable the app
+# and run 'systemctl start flaskapp' to start the app
+
+[Unit]
+Description=gtszapp
+after=network.target
+
+[Service]
+User=${USER_NAME}
+Restart=on-failure
+WorkingDirectory=${APP_WORKING_DIRECTORY_ABSOLUTE_PATH}
+ExecStart=${APP_EXEC_SCRIPT_ABSOLUTE_PATH_OR_WHOLE_SCRIPT_TO_START}
