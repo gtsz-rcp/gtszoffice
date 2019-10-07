@@ -1,0 +1,1 @@
+bash is_docker_already_up.sh && {$PIPENV_VENV_PATH}/bin/gunicorn - {$GUNICORN_CONF_PATH}/gunicorn.conf -b 0.0.0.0:5000 gunicorn_app:app --name gtszapp
