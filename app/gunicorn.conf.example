@@ -1,2 +1,0 @@
-accesslog = ACCESS_LOG_ABSOLUTE_PATH
-errorlog = ERROR_LOG_ABSOLUTE_PATH
