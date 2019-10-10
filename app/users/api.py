@@ -67,7 +67,7 @@ class UserDataObject:
     def get(self, user_id):
         User = UsersModel.query.get(user_id)
         if User is None:
-            message = self.messages['user_id_not_exists'].\
+            message = self._messages['user_id_not_exists'].\
                 format(user_id=user_id)
             abort(404, message=message)
         return self.to_json(User)
@@ -84,7 +84,7 @@ class UserDataObject:
     def udpate(self, user_id):
         User = UsersModel.query.get(user_id)
         if User is None:
-            message = self.messages['user_id_not_exists'].\
+            message = self._messages['user_id_not_exists'].\
                 format(user_id=user_id)
             abort(404, message=message)
 
@@ -134,7 +134,7 @@ class UserDataObject:
         if ph.check_needs_rehash(User.passowrd):
             self.__rehash(User, params['password'])
 
-        Auth.login_proc(self.to_json(User))
+        Auth.login_proc(**self.to_json(User))
         return {'message': 'success'}
 
     def __rehash(self, User: UsersModel, password: str):

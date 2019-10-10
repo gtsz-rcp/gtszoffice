@@ -21,6 +21,26 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 
+@manager.option('-e', '--email', dest='email')
+@manager.option('-p', '--password', dest='password')
+@manager.option('-n', '--name', dest='name', default='super admin')
+def add_superuser(email, password, name):
+    from sqlalchemy.orm import sessionmaker
+
+    userdata = users.models.Users()
+    super_exists = users.models.Users.query.filter_by(type=getattr(users.models.UsersType, 'superuser')).all()
+    if len(super_exists) > 0:
+        return 'sueruser already exits'
+    
+    userdata.type = 'superuser'
+    userdata.email = email
+    userdata.name = name
+    userdata.password = password
+    
+    db.session.add(userdata)
+    return db.session.commit()
+
+
 @manager.command
 def run_server():
     app.run()
