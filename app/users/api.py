@@ -2,6 +2,7 @@ from flask_restful import Resource
 from flask_restful import reqparse
 from flask_restful import abort
 from argon2 import PasswordHasher
+from argon2.exceptions import InvalidHash
 from lib.db import db
 from lib.app import api
 import lib.auth as Auth
@@ -41,7 +42,7 @@ class UserDataObject:
             'type_str': User.type.name,
             'email': User.email,
             'name': User.name,
-            'password': User.passowrd,
+            'password': User.password,
             'createtime': User.createtime
         }
 
@@ -122,16 +123,20 @@ class UserDataObject:
 
     def login(self):
         params = self.login_params().parse_args()
-        User = UsersModel.query.filter_by(email=params['email'])
+        User = UsersModel.query.filter_by(email=params['email']).first()
         error_message = "Login failed(email or password is not matched)"
 
         if User is None:
             abort(401, message=error_message)
 
-        if ph.verify(User.password, params['password']) is False:
-            abort(401, message=error_message)
+        try:
+            if ph.verify(User.password, params['password']) is False:
+                abort(401, message=error_message)
+        except InvalidHash:
+            abort(401, message='Invalid hash')
 
-        if ph.check_needs_rehash(User.passowrd):
+
+        if ph.check_needs_rehash(User.password):
             self.__rehash(User, params['password'])
 
         Auth.login_proc(**self.to_json(User))

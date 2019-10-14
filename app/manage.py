@@ -26,7 +26,9 @@ manager.add_command('db', MigrateCommand)
 @manager.option('-n', '--name', dest='name', default='super admin')
 def add_superuser(email, password, name):
     from sqlalchemy.orm import sessionmaker
+    from argon2 import PasswordHasher
 
+    ph = PasswordHasher()
     userdata = users.models.Users()
     super_exists = users.models.Users.query.filter_by(type=getattr(users.models.UsersType, 'superuser')).all()
     if len(super_exists) > 0:
@@ -35,7 +37,7 @@ def add_superuser(email, password, name):
     userdata.type = 'superuser'
     userdata.email = email
     userdata.name = name
-    userdata.password = password
+    userdata.password = ph.hash(password)
     
     db.session.add(userdata)
     return db.session.commit()
