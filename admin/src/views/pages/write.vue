@@ -14,31 +14,49 @@
         <label for="pageContent">content</label>
         <textarea id="pageContent" class="form-control" rows="3" v-model="page.content" required></textarea>
       </div>
-      <div class="btn-group">
-        <button type="submit" class="btn btn-primary">Submit</button>
+      <artistsSelector v-model="page.author" :value="page.author" label="author" />
+      <div class="form-group">
+        <label>publishedtime</label>
+        <the-mask mask="####-##-##" v-model="page.publishedtime" :masked="true" class="form-control"></the-mask>
+      </div>
+      <div class="form-group clearfix">
+        <div class="btn-group">
+          <router-link to="/pages" class="btn btn-secondary">Lists</router-link>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
       </div>
     </form>
   </section>
-</template>
+</template> 
 
 <script>
-import page from '@/service/page'
+import {Page} from '@/service/page'
+import artistsSelector from '@/views/artists/selector.vue'
+
+const pageIO = new Page('page')
 
 export default {
   name: 'PagesWrite',
+  components: { artistsSelector },
   data() {
     return {
-      page: page.data()
+      page: pageIO.data()
     }
   },
   methods: {
     getPage(id) {
-      alert(id)
+      let vm = this
+      pageIO.get({id})
+        .then((result) => {
+          vm.page = result.data
+        })
     },
     putPage() {
-      page.register(this.page)
+      pageIO.register(this.page)
         .then((result) => {
-          console.log(result)
+          if(result.status == 200) {
+            alert('success')
+          }
         })
     }
   },
