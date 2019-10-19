@@ -1,6 +1,7 @@
 import enum
 from datetime import datetime
 from lib.db import db
+from lib.db import datetime_zero
 
 
 class PagesType(enum.Enum):
@@ -20,7 +21,7 @@ class Pages(db.Model):
     content = db.Column(db.UnicodeText)
     publishedtime = db.Column(db.DateTime, default=datetime.now())
     deletetime = db.Column(db.DateTime, nullable=True, default=None)
-    updatetime = db.Column(db.DateTime, nullable=True, default=None, onupdate=datetime.utcnow())
+    updatetime = db.Column(db.DateTime, nullable=True, default=datetime_zero(), onupdate=datetime.utcnow())
     createtime = db.Column(db.DateTime, default=datetime.now())
 
 

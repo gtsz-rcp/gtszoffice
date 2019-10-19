@@ -8,6 +8,7 @@ from lib.app import api
 from .models import Pages as PagesModel
 from .models import PagesType
 from .models import init_from_dict
+from artists.api import ArtistsDataObject
 
 
 class PagesDataObject:
@@ -54,19 +55,15 @@ class PagesDataObject:
             abort(404, message=f"{pagesType}(id: {page_id}) doesn't exist")
 
         parser = self.params().parse_args()
-        pass_nones = ('publishedtime', 'deletetime', 'updatetime', )
+        pass_nones = ('publishedtime', )
         for key in parser:
-            print(key, key in pass_nones, parser[key] is None)
-            if key in ('createtime', 'id', ):
+            if key in ('type', 'createtime', 'id', 'deletetime', 'updatetime', ):
                 continue
 
             if key in pass_nones and parser[key] is None:
                 continue
 
             setattr(Page, key, parser[key])
-
-        if Page.deletetime is None:
-            Page.deletetime = datetime_zero()
 
         if Page.publishedtime is None:
             Page.publishedtime = Page.createtime
@@ -116,8 +113,12 @@ class PagesDataObject:
             'createtime': Pages.createtime,
         }
 
+        if 'author' in data and data['author'] is not None:
+            ado = ArtistsDataObject()
+            data['author_data'] = ado.get(data['author'])
+
         for t in ['publishedtime', 'deletetime', 'updatetime', 'createtime']:
-            if datetime.timestamp(data[t]) == 0:
+            if data[t] is None or datetime.timestamp(data[t]) == 0:
                 data[t] = 0
             else:
                 data[t] = data[t].isoformat()
