@@ -2,8 +2,13 @@ import axios from '@/lib/axios'
 import moment from 'moment'
 
 export class Page {
-  cosntructor(pageType) {
+  cosntructor(pageType = 'undefined') {
     this.pageType = pageType
+  }
+
+  endpoint(params = []) {
+    let type = this.pageType + 's'
+    return '/'+([type].concat(params)).join('/')
   }
   
   userDatetime(datetime) {
@@ -18,10 +23,10 @@ export class Page {
     page = Object.assign({
       id: 0,
       type: this.pageType,
-      title: 'test',
-      subtitle: 'test',
+      title: '',
+      subtitle: '',
       author: null,
-      content: 'test',
+      content: '',
       publishedtime: this.userDatetime(new Date),
       updatetime: null,
       createtime: this.userDatetime(new Date)
@@ -51,6 +56,6 @@ export class Page {
   }
 
   lists(params = {}) {
-    return axios.get('/pages')
+    return axios.get(this.endpoint())
   }
 }

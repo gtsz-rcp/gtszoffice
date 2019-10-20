@@ -19,12 +19,36 @@ export default new Router({
       path: '/pages',
       name: 'pagesList',
       component: PagesList,
-      alias: '/pages/lists'
+      alias: '/pages/lists',
+      props: {
+        type: 'page'
+      }
     },
     {
       path: '/pages/write/:id?',
       name: 'pagesWrite',
-      component: PagesWrite
+      component: PagesWrite,
+      props: {
+        type: 'page'
+      }
+    },
+
+    {
+      path: '/posts',
+      name: 'postList',
+      component: PagesList,
+      alias: '/posts/lists',
+      props: {
+        type: 'post'
+      }
+    },
+    {
+      path: '/posts/write/:id?',
+      name: 'postWrite',
+      component: PagesWrite,
+      props: {
+        type: 'post'
+      }
     },
     {
       path: '/about',

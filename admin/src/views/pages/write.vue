@@ -33,7 +33,7 @@
 import {Page} from '@/service/page'
 import artistsSelector from '@/views/artists/selector.vue'
 
-const pageIO = new Page('page')
+const pageIO = new Page()
 
 export default {
   name: 'PagesWrite',
@@ -61,6 +61,7 @@ export default {
     }
   },
   created() {
+    pageIO.pageType = this.type
     if(this.$route.params.id !== undefined) {
       this.getPage(this.$route.params.id)
     }

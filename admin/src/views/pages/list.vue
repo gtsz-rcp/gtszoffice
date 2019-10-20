@@ -14,7 +14,7 @@
         <tr v-for="item in lists" class="item" v-bind:key="item.id">
           <td>{{item.id}}</td>
           <td>
-            <router-link :to="'/pages/write/'+item.id">
+            <router-link :to="writeUrl(item.id)">
               {{item.title}} <span class="subtitle" v-if=item.subtitle>-- {{item.subtitle}}</span>
             </router-link>
           </td>
@@ -26,7 +26,7 @@
     </table>
     <div class="float-right clearfix">
       <div class="btn-group">
-        <router-link to="/pages/write" class="btn btn-primary">Write</router-link>
+        <router-link :to="writeUrl()" class="btn btn-primary">Write</router-link>
       </div>
     </div>
   </section>
@@ -34,13 +34,14 @@
 
 <script>
 import {Page} from '@/service/page'
-const pageIO = new Page('page')
+const pageIO = new Page()
 
 export default {
   name: 'pagesList',
+  props: ['type'],
   data() {
     return {
-      lists: []
+      lists: [],
     }
   },
   methods: {
@@ -52,11 +53,15 @@ export default {
             return pageIO.data(item)
           })
         })
+    },
+    writeUrl(id = '') {
+      return `/${this.type}s/${id}`
     }
   },
   beforeCreate(){
   },
   created(){
+    pageIO.pageType = this.type
     this.getLists()
   }
 }
