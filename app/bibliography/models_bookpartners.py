@@ -2,6 +2,7 @@ import enum
 from datetime import datetime
 from lib.db import db
 from lib.db import datetime_zero
+from artists.models import Artists
 
 
 class BookPartnerType(enum.Enum):
@@ -15,7 +16,7 @@ class BookPartnerType(enum.Enum):
 
 
 class BookPartners(db.Model):
-    __table_name__ = 'book_writers'
+    __table_name__ = 'book_partners'
 
     id = db.Column(db.Integer(), primary_key=True)
     order = db.Column(db.Integer(), default=0)
@@ -23,10 +24,13 @@ class BookPartners(db.Model):
         db.Enum(BookPartnerType),
         nullable=False,
         default='artist')
-    artist = db.Column(
-        db.Integer(),
-        nullable=False,
-        doc='foreign with artists')
+    artist_id = db.Column(
+        db.Integer(), 
+        db.ForeignKey('artists.id'))
+    artist = db.relationship(
+        'Artists', 
+        backref='book_partners', 
+        lazy=True)
     book = db.Column(
         db.Integer(),
         nullable=False,

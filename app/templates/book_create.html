@@ -1,0 +1,172 @@
+{% extends 'admin/model/edit.html' %}
+
+{% block body %}
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<div id="app">
+<ul class="nav nav-tabs">
+    <li><a href="/admin/books/">List</a></li>
+    <li><a href="/admin/books/new/?url=%2Fadmin%2Fbooks%2F">Create</a></li>
+    <li class="active"><a href="javascript:void(0)">Edit</a></li>
+</ul>
+<form action="" method="POST" role="form" class="admin-form form-horizontal" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="slug" class="col-md-2 control-label">Slug
+            <strong style="color: red">*</strong>
+        </label>
+        <div class="col-md-10">
+            <input class="form-control" id="slug" name="slug" required="" type="text" value="" >
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="title" class="col-md-2 control-label">Title
+            <strong style="color: red">*</strong>
+        </label>
+        <div class="col-md-10">
+            <input class="form-control" id="title" name="title" required="" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="subtitle" class="col-md-2 control-label">Subtitle</label>
+        <div class="col-md-10">
+            <input class="form-control" id="subtitle" name="subtitle" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="language" class="col-md-2 control-label">Language</label>
+        <div class="col-md-10">
+            <input class="form-control" id="language" name="language" type="text" value="ko">
+        </div>
+    </div>
+    <hr />
+    {% raw %}
+    <div class="form-group">
+        <label for="language" class="col-md-2 control-label">Add credit</label>
+        <div class="col-md-10">
+            <div class="col-md-4">
+                <select class="form-control" v-model="insertPartner.type">
+                    <option value="">select credit type</option>
+                    <option 
+                        v-for="types in bookpartnerTypes">
+                        {{types.label}}
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-5">
+                <input v-if="insertPartner.insertType == 'str'"  type="text" class="form-control" v-model="insertPartner.value" />
+                <select v-else class="form-control"></select>
+            </div>
+            <div class="col-md-3 btn-group">
+                <button class="btn btn-warning" type="button" v-on:click="toggleInsertType()">{{insertTypeToggleBtnLabel}}</button>
+                <button class="btn btn-primary" type="button" v-on:click="insert">Append</button>
+            </div>
+        </div>
+    </div>
+    {% endraw %}
+    <hr />
+    <div class="form-group">
+        <label for="place" class="col-md-2 control-label">Place</label>
+        <div class="col-md-10">
+            <input class="form-control" id="place" name="place" type="text" value="Seoul">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="medium" class="col-md-2 control-label">Medium</label>
+        <div class="col-md-10">
+            <input class="form-control" id="medium" name="medium" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="page_amt" class="col-md-2 control-label">Page Amt</label>
+        <div class="col-md-10">
+            <input class="form-control" id="page_amt" name="page_amt" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="binding" class="col-md-2 control-label">Binding</label>
+        <div class="col-md-10">
+            <input class="form-control" id="binding" name="binding" type="text" value="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="colorspace" class="col-md-2 control-label">Colorspace</label>
+        <div class="col-md-10">
+            <select class="form-control" id="colorspace" name="colorspace" title="Colorspace">
+                <option selected="" value="CMYK">CMYK</option>
+                <option value="RGB">RGB</option>
+                <option value="GRAY">GRAY</option>
+                <option value="BNW">BNW</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="summary" class="col-md-2 control-label">Summary</label>
+        <div class="col-md-10">
+            <textarea class="form-control" id="summary" name="summary"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="toc" class="col-md-2 control-label">Toc</label>
+        <div class="col-md-10">
+            <textarea class="form-control" id="toc" name="toc"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="publishedtime" class="col-md-2 control-label">Publishedtime<strong style="color: red">*</strong></label>
+        <div class="col-md-10">
+            <input class="form-control" data-date-format="YYYY-MM-DD HH:mm:ss" data-role="datetimepicker" id="publishedtime" name="publishedtime" required="" type="text" value="">
+        </div>
+    </div>
+    <hr>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10 submit-row">
+            <input type="submit" class="btn btn-primary" value="Save">
+            <input name="_add_another" type="submit" class="btn btn-default" value="Save and Add Another">
+            <input name="_continue_editing" type="submit" class="btn btn-default" value="Save and Continue Editing">
+            <a href="/admin/books/" class="btn btn-danger" role="button">Cancel</a>
+        </div>
+    </div>
+</form>
+</div>
+{% raw %}
+<script>
+const insertPartnerObject = function() {
+    return {
+        type: '',
+        id: '',
+        insertType: 'str'
+    }
+}
+
+var app = new Vue({
+    el: '#app',
+    data: {
+        bookpartners: [],
+        bookpartnerTypes: [
+            {value: 'writer', label: 'Writers/Authors'},
+            {value: 'editor', label: 'Editors'},
+            {value: 'designer', label: 'Designers'},
+            {value: 'artists', label: 'Artists'}
+        ],
+        insertPartner: insertPartnerObject(),
+        writers: [],
+        editors: [],
+        designers: [],
+        artists: []
+    },
+    computed: {
+        insertTypeToggleBtnLabel() {
+            return this.insertPartner.insertType == 'str' ? 'select' : 'put'
+        }
+    },
+    methods: {
+        toggleInsertType() {
+            this.insertPartner.insertType = this.insertPartner.insertType == 'str' ? 'value' : 'str'
+        },
+        insert() {
+            console.log(this.insertPartner)
+        }
+    }
+})
+</script>
+{% endraw %}
+{% endblock %}

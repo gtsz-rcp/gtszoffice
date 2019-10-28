@@ -1,6 +1,7 @@
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from lib.app import app
+from lib.admin import admin
 from lib.app import api
 from lib.db import db
 

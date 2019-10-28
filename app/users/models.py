@@ -18,3 +18,6 @@ class Users(db.Model):
     name = db.Column(db.String(64), nullable=False)
     password = db.Column(db.String(255), nullable=False, unique=True)
     createtime = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"{self.name}"

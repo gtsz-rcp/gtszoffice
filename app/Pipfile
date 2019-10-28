@@ -55,6 +55,7 @@ gunicorn = "*"
 flask-shell-ipython = "*"
 pyjwt = "*"
 flask-cors = "*"
+flask-admin = "*"
 
 [requires]
 python_version = "3.6"

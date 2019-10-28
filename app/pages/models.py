@@ -2,6 +2,7 @@ import enum
 from datetime import datetime
 from lib.db import db
 from lib.db import datetime_zero
+from artists.models import Artists
 
 
 class PagesType(enum.Enum):
@@ -17,7 +18,8 @@ class Pages(db.Model):
     slug = db.Column(db.String(64), nullable=True, unique=True)
     title = db.Column(db.String(255), nullable=False)
     subtitle = db.Column(db.String(255), nullable=True, default=None)
-    author = db.Column(db.Integer(), default=1)
+    author_id = db.Column(db.Integer(), db.ForeignKey('artists.id'))
+    author = db.relationship('Artists', backref='pages', lazy=True)
     content = db.Column(db.UnicodeText)
     publishedtime = db.Column(db.DateTime, default=datetime.now())
     deletetime = db.Column(db.DateTime, nullable=True, default=None)

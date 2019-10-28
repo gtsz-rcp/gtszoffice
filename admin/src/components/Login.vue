@@ -37,8 +37,8 @@ export default {
   name: 'login',
   data() {
     return {
-      email: 'aka.seunghaekim@gmail.com',
-      password: 'aka.seunghaekim@gmail.com',
+      email: 'admin@gtszoffice.com',
+      password: 'admin@gtszoffice.com!@#$',
     }
   },
   methods: {
