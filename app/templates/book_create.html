@@ -1,7 +1,6 @@
-{% extends 'admin/model/edit.html' %}
+{% extends 'base_custom_edit.html' %}
 
 {% block body %}
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <div id="app">
 <ul class="nav nav-tabs">
     <li><a href="/admin/books/">List</a></li>
@@ -9,6 +8,8 @@
     <li class="active"><a href="javascript:void(0)">Edit</a></li>
 </ul>
 <form action="" method="POST" role="form" class="admin-form form-horizontal" enctype="multipart/form-data">
+    <div class="container">
+    <h2>Book</h2>
     <div class="form-group">
         <label for="slug" class="col-md-2 control-label">Slug
             <strong style="color: red">*</strong>
@@ -37,32 +38,6 @@
             <input class="form-control" id="language" name="language" type="text" value="ko">
         </div>
     </div>
-    <hr />
-    {% raw %}
-    <div class="form-group">
-        <label for="language" class="col-md-2 control-label">Add credit</label>
-        <div class="col-md-10">
-            <div class="col-md-4">
-                <select class="form-control" v-model="insertPartner.type">
-                    <option value="">select credit type</option>
-                    <option 
-                        v-for="types in bookpartnerTypes">
-                        {{types.label}}
-                    </option>
-                </select>
-            </div>
-            <div class="col-md-5">
-                <input v-if="insertPartner.insertType == 'str'"  type="text" class="form-control" v-model="insertPartner.value" />
-                <select v-else class="form-control"></select>
-            </div>
-            <div class="col-md-3 btn-group">
-                <button class="btn btn-warning" type="button" v-on:click="toggleInsertType()">{{insertTypeToggleBtnLabel}}</button>
-                <button class="btn btn-primary" type="button" v-on:click="insert">Append</button>
-            </div>
-        </div>
-    </div>
-    {% endraw %}
-    <hr />
     <div class="form-group">
         <label for="place" class="col-md-2 control-label">Place</label>
         <div class="col-md-10">
@@ -116,6 +91,68 @@
             <input class="form-control" data-date-format="YYYY-MM-DD HH:mm:ss" data-role="datetimepicker" id="publishedtime" name="publishedtime" required="" type="text" value="">
         </div>
     </div>
+    </div>
+    <div class="container">
+        {% raw %}
+        <div class="form-group"><h2>Credit</h2></div>
+        <div class="form-group">
+            <label for="language" class="col-md-2 control-label">Add credit</label>
+            <div class="col-md-10">
+                <div class="col-md-4">
+                    <select class="form-control" v-model="appendPartner.type">
+                        <option value="">select credit type</option>
+                        <option 
+                            v-for="types in bookpartnerTypes" :value="types.value">
+                            {{types.label}}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" v-model="appendPartner.id">
+                        <option value="">select artists</option>
+                        <option v-for="artist in listArtists" :value="artist.id">{{artist.name}}</option>
+                    </select>
+                </div>
+                <div class="col-md-4 btn-group">
+                    <button class="btn btn-primary" type="button" v-on:click="append">Append</button>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <div v-for="(credit, key, index) in credits" 
+            class="form-group credit-section">
+            <div class="form-group">
+                <label class="col-md-2 control-label">{{typeLabelByValue(key)}}</label>
+                <div class="col-md-10">
+                    <div v-if="credit" 
+                        v-for="(type, typekey) in credit"
+                        :key="typekey" 
+                        class="btn-group btn-group-sm tag-set">
+                        <span class="btn btn-default">
+                            {{type.name}}
+                        </span>
+                        <button type="button" 
+                            class="btn btn-info"
+                            v-if="typekey > 0" 
+                            v-on:click="moveArtist('left', key, typekey)">
+                            <span class="glyphicon glyphicon glyphicon-arrow-left"></span>
+                        </button>
+                        <button type="button" 
+                            class="btn btn-info"
+                            v-if="typekey < (credit.length - 1)" 
+                            v-on:click="moveArtist('right', key, typekey)">
+                            <span class="glyphicon glyphicon glyphicon-arrow-right"></span>
+                        </button>
+                        <button type="button" class="btn btn-danger" v-on:click="deleteArtist(key, typekey)">
+                            <span class="glyphicon glyphicon glyphicon-remove-circle"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endraw %}
+    </div>
+
     <hr>
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10 submit-row">
@@ -127,46 +164,6 @@
     </div>
 </form>
 </div>
-{% raw %}
-<script>
-const insertPartnerObject = function() {
-    return {
-        type: '',
-        id: '',
-        insertType: 'str'
-    }
-}
 
-var app = new Vue({
-    el: '#app',
-    data: {
-        bookpartners: [],
-        bookpartnerTypes: [
-            {value: 'writer', label: 'Writers/Authors'},
-            {value: 'editor', label: 'Editors'},
-            {value: 'designer', label: 'Designers'},
-            {value: 'artists', label: 'Artists'}
-        ],
-        insertPartner: insertPartnerObject(),
-        writers: [],
-        editors: [],
-        designers: [],
-        artists: []
-    },
-    computed: {
-        insertTypeToggleBtnLabel() {
-            return this.insertPartner.insertType == 'str' ? 'select' : 'put'
-        }
-    },
-    methods: {
-        toggleInsertType() {
-            this.insertPartner.insertType = this.insertPartner.insertType == 'str' ? 'value' : 'str'
-        },
-        insert() {
-            console.log(this.insertPartner)
-        }
-    }
-})
-</script>
-{% endraw %}
+<script src="{{ url_for('static', filename='js/book_create.js') }}"></script>
 {% endblock %}
