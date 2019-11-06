@@ -94,6 +94,7 @@
     </div>
     <div class="container">
         {% raw %}
+        <input type="hidden" name="credit_str" :value="toJSON" />
         <div class="form-group"><h2>Credit</h2></div>
         <div class="form-group">
             <label for="language" class="col-md-2 control-label">Add credit</label>
@@ -129,7 +130,7 @@
                         :key="typekey" 
                         class="btn-group btn-group-sm tag-set">
                         <span class="btn btn-default">
-                            {{type.name}}
+                            {{type.artist_name}}
                         </span>
                         <button type="button" 
                             class="btn btn-info"

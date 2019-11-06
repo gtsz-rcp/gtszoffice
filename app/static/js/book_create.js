@@ -1,10 +1,29 @@
 
 const appendPartnerObject = function(obj = {}) {
     return Object.assign({
-        type: '',
         id: '',
-        name: ''
+        order: '',
+        artist: '',
+        artist_name: ''
     }, obj)
+}
+
+const array_move = (arr, old_index, new_index) => {
+    while (old_index < 0) {
+        old_index += arr.length
+    }
+    while (new_index < 0) {
+        new_index += arr.length
+    }
+
+    if (new_index >= arr.lenth) {
+        let k = new_index - arr.length + 1;
+        while(k--) {
+            arr.push(undefined)
+        }
+    }
+    arr.splice(new_index, 0, arr.splice(old_index, 1)[0])
+    return arr
 }
 
 const bookpartnerTypes = [
@@ -34,29 +53,37 @@ var app = new Vue({
         appendPartner: appendPartnerObject(),
         writer: [
             appendPartnerObject({
-                id: 1, 
-                name: 'writer test'
+                artist: 1, 
+                artist_name: 'writer test1'
+            }),
+            appendPartnerObject({
+                artist: 1, 
+                artist_name: 'writer test2'
+            }),
+            appendPartnerObject({
+                artist: 1, 
+                artist_name: 'writer test3'
             })
         ],
         editor: [
             appendPartnerObject({
-                id: 1, 
-                name: 'editor test'
+                artist: 1, 
+                artist_name: 'editor test'
             })
         ],
         designer: [
             appendPartnerObject({
-                id: 1, 
-                name: 'designer test'
+                artist: 1, 
+                artist_name: 'designer test'
             })
         ],
         artist: [
             appendPartnerObject({
-                id: 1, 
-                name: 'artist test'
+                artist_name: 1, 
+                artist: 'artist test'
             })
         ],
-        listArtists: []
+        listArtists: [],
     },
     computed: {
         credits() {
@@ -67,6 +94,18 @@ var app = new Vue({
                 artist: this.artist,
             }
         },
+        toJSON() {
+            let _credits = this.credits
+            let credits = {}
+            Object.keys(_credits)
+                .forEach((type) => {
+                    credits[type] = _credits[type].map((item, idx) => {
+                        item.order = idx + 1
+                        return item
+                    })
+                })
+            return JSON.stringify(_credits)
+        }
     },
     methods: {
         typeLabelByValue(value) {
@@ -80,8 +119,8 @@ var app = new Vue({
             if (this.appendPartner.id == '' || this.appendPartner.type == '') return
             let row = this.appendPartner
             let pushdata = {
-                id: row.id,
-                name: this.getArtistRowFromId(row.id).name
+                artist: row.id,
+                artist_name: this.getArtistRowFromId(row.id).name
             }
             this.credits[row.type].push(pushdata)
             this.appendPartner = appendPartnerObject()
@@ -114,7 +153,6 @@ var app = new Vue({
             return idx < (length - 1)
         },
         moveArtist(direction, type, idx) {
-            console.log(direction, type, idx)
             if(!this[type]) {
                 return
             }
@@ -140,8 +178,10 @@ var app = new Vue({
                 default:
                     return false;
             }
+            typeArr = this[type]
+                .slice(0,0)
+                .concat(array_move(typeArr, idx, targetIdx))
 
-            
         }
     },
     created() {

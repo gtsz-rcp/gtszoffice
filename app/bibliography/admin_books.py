@@ -7,6 +7,11 @@ class BooksModelView(ModelView):
 
     create_template = 'book_create.html'
 
+    def get_form(self):
+        form = super().get_form()
+        form.custom_vars = 'hahah'
+        return form
+
 
 def BooksModelViewInstance(db):
     return BooksModelView(Books, db.session)
